@@ -9,48 +9,47 @@ namespace ParserMiamidade
         public static List<string> ParseListofStrings(List<string> sourceList)
         {
             
-            //if (sourceList.Count == 23)
-            //{
-            //    if (sourceList[4].Contains("broker", StringComparison.OrdinalIgnoreCase) ||
-            //        sourceList[4].Contains("associate", StringComparison.OrdinalIgnoreCase))
-            //    {
-            //        var splitName = sourceList[2].Split(',');
-            //        if (splitName.Count() > 1)
-            //        {
-            //            sourceList[2] = splitName[1] + " " + splitName[0];
-            //        }
-            //    }
+            sourceList[7] = ConvertTo_ProperCase(sourceList[7]);
+            sourceList[7] = ConvertAddressToSpecifiedFormat(sourceList[7]);
 
-            //    sourceList[2] = ConvertTo_ProperCase(sourceList[2]);
-            //    if (sourceList[2].Contains("Llc"))
-            //    {
-            //        sourceList[2] = sourceList[2].Replace("Llc", "LLC");
-            //    }
+            sourceList[11] = ConvertTo_ProperCase(sourceList[11]);
+            sourceList[11] = ConvertAddressToSpecifiedFormat(sourceList[11]);
 
-            //    sourceList[5] = ConvertTo_ProperCase(sourceList[5]);
-            //    sourceList[5] = ConvertAddressToSpecifiedFormat(sourceList[5]);
+            sourceList[12] = ConvertTo_ProperCase(sourceList[12]);
 
-            //    sourceList[6] = ConvertTo_ProperCase(sourceList[6]);
-            //    sourceList[6] = ConvertAddressToSpecifiedFormat(sourceList[6]);
+            sourceList[14] = ConvertTo_ProperCase(sourceList[14]);
 
-            //    sourceList[7] = ConvertTo_ProperCase(sourceList[7]);
-            //    sourceList[7] = ConvertAddressToSpecifiedFormat(sourceList[7]);
-            //    sourceList[8] = ConvertTo_ProperCase(sourceList[8]);
+            sourceList[18] = ConvertTo_ProperCase(sourceList[18]);
+            sourceList[18] = ConvertAddressToSpecifiedFormat(sourceList[18]);
+            if (sourceList[18].Contains("Llc",StringComparison.OrdinalIgnoreCase))
+            {
+                sourceList[18] = sourceList[18].Replace("Llc", "LLC");
+            }
 
-            //}
-            //else
-            //{
-            //    // log error
-            //}
+            sourceList[19] = ConvertTo_ProperCase(sourceList[19]);
+            sourceList[19] = ConvertAddressToSpecifiedFormat(sourceList[19]);
+            if (sourceList[19].Contains("Llc", StringComparison.OrdinalIgnoreCase))
+            {
+                sourceList[19] = sourceList[19].Replace("Llc", "LLC");
+            }
 
-            //for (int i = 0; i < sourceList.Count(); i++)
-            //{
-            //    var entry = sourceList[i];
-            //    if (entry.Contains(","))
-            //    {
-            //        sourceList[i] = "\"" + sourceList[i] + "\"";
-            //    }
-            //}
+            sourceList[20] = ConvertTo_ProperCase(sourceList[20]);
+            sourceList[20] = ConvertAddressToSpecifiedFormat(sourceList[20]);
+            if (sourceList[18].Contains("Llc", StringComparison.OrdinalIgnoreCase))
+            {
+                sourceList[20] = sourceList[20].Replace("Llc", "LLC");
+            }
+
+            sourceList[24] = ConvertTo_ProperCase(sourceList[24]);
+
+            for (int i = 0; i < sourceList.Count(); i++)
+            {
+                var entry = sourceList[i];
+                if (entry.Contains(","))
+                {
+                    sourceList[i] = "\"" + sourceList[i] + "\"";
+                }
+            }
 
             return sourceList;
         }

@@ -24,7 +24,7 @@ namespace ParserMiamidade
             prgBarProgress.Style = ProgressBarStyle.Continuous;
         }
 
-        private void ParseTextToCsv(string filePath, string outputFolder)
+        private void ParseCsvFile(string filePath, string outputFolder)
         {
             try
             {
@@ -34,7 +34,7 @@ namespace ParserMiamidade
                 var fileProps = File.ReadLines(filePath);
                 var numberOfEntries = fileProps.Count();
 
-                AppendTextToLogView("Total number of records found in .csv file: " + numberOfEntries);
+                AppendTextToLogView("Total number of records found in .csv file: " + (numberOfEntries - 1));
                 AppendTextToLogView("Started parsing file... ");
 
                 var fileName = Path.GetFileName(filePath);
@@ -43,8 +43,6 @@ namespace ParserMiamidade
 
 
                 var parsedRecordsToString = new List<List<string>>();
-
-                
 
                 new Thread(() =>
                 {
@@ -57,36 +55,54 @@ namespace ParserMiamidade
                             Delimiter = ","
                         }))
                         {
-                            int counter = 0;
+                            int rowCounter = 0;
+                            int fileCounter = 1;
+                            
+                            List<string> headers = new List<string>();
+
                             foreach (var record in csv.GetRecords<dynamic>())
                             {
                                 var rowData = new List<string>();
                                 var recordDict = (IDictionary<string, object>)record;
 
-                                
                                 foreach (var field in recordDict.Values)
                                 {
                                     rowData.Add(field?.ToString());
                                 }
 
+                                if (rowCounter == 0)
+                                {
+                                    headers = new List<string>(rowData);
+                                    rowCounter++;
+                                    continue;
+                                }
 
-                                if (counter < fileBreaker.Value)
+                                if (parsedRecordsToString.Count() < fileBreaker.Value)
                                 {
                                     // perform parsing here
-                                    // Add into the 
+                                    var parsedData = Parser.ParseListofStrings(rowData);
+                                    parsedRecordsToString.Add(rowData);
+                                    if (rowCounter == numberOfEntries - 1)
+                                    {
+                                        // Write to Outputfile
+                                        WriteOutput(outputFolder, fileName, parsedRecordsToString, fileCounter, headers);
+                                        break;
+                                    }
                                 }
-                                else 
+                                else
                                 {
-                                    // create a new thread that writes the CSV
+                                    var outputFileList = new List<List<string>>(parsedRecordsToString);
+                                    parsedRecordsToString.Clear();
+                                    parsedRecordsToString.Add(rowData);
+                                    WriteOutput(outputFolder, fileName, outputFileList, fileCounter, headers);
+                                    fileCounter++;
                                 }
 
-
-
-
-                                // Perform processing here (like writing to a database)
-                                parsedRecordsToString.Add(rowData);
-
-                                // If you don't need to keep all rows, you can comment out the line above
+                                prgBarProgress.Invoke(new MethodInvoker(delegate
+                                {
+                                    prgBarProgress.Value = rowCounter;
+                                }));
+                                rowCounter++;
                             }
                         }
                     }
@@ -94,20 +110,8 @@ namespace ParserMiamidade
                     {
                         // log error
                     }
-                    
 
-                    int currentLineIndex = 0;
-                    for (int k = 1; k <= totalFiles; k++)
-                    {
-                        currentLineIndex = WriteOutputFile(outputFolder, fileName.Replace(".csv", "_" + k.ToString() + ".csv"), parsedRecordsToString, currentLineIndex);
-
-                        if (currentLineIndex == -1)
-                        {
-                            break;
-                        }
-                    }
-
-                    AppendTextToLogView("Total number of records processed: " + parsedRecordsToString.Count());
+                    AppendTextToLogView("Total number of records processed: " + (numberOfEntries - 1));
                     AppendTextToLogView("File processed successfully.");
 
                 }).Start();
@@ -117,6 +121,13 @@ namespace ParserMiamidade
             {
                 Console.WriteLine($"An error occurred while reading the file: {e.Message}");
             }
+        }
+
+        private void WriteOutput(string outputFolder, string fileName, List<List<string>> parsedRecordsToString, int fileCounter, List<string> headers)
+        {
+            var outputPath = Path.Combine(outputFolder, fileName.Replace(".csv", "_" + fileCounter + ".csv"));
+            parsedRecordsToString.Insert(0, headers);
+            WriteToCsv(parsedRecordsToString, outputPath);
         }
 
         private void WriteToCsv(List<List<string>> data, string filePath)
@@ -168,9 +179,9 @@ namespace ParserMiamidade
         private void btnFilePicker_Click(object sender, EventArgs e)
         {
             OpenFileDialog dlg = new OpenFileDialog();
-            dlg.Title = "Select .csv File";
+            dlg.Title = "Select CSV File";
             dlg.InitialDirectory = @"C:\";
-            dlg.Filter = "All files (*.*)|*.*|Text File (*.txt)|*.txt";
+            dlg.Filter = "CSV files (*.csv)|*.csv|All files (*.*)|*.*";
             dlg.FilterIndex = 1;
             dlg.ShowDialog();
 
@@ -215,7 +226,7 @@ namespace ParserMiamidade
             }
             else
             {
-                ParseTextToCsv(inputFilePath, outputPath);
+                ParseCsvFile(inputFilePath, outputPath);
             }
         }
 
