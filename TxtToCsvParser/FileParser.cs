@@ -6,15 +6,6 @@ namespace ParserMiamidade
 {
     public partial class FileParser : Form
     {
-        public const string Headers = "Board, Board Name, Licensee Name, DBA Name, Rank, Address 1, Address 2, Address 3, City, State, Zip, " +
-            "County Code, County Name, License Number, Primary Status, Secondary Status, Original License Date, Status Effective Date, " +
-            "License Expiration Date, Alternate License Number, Self Proprietor’s Name, Employer’s Name, Employer’s License Number";
-
-        public Dictionary<string, (int, int)> dictionary = new Dictionary<string, (int, int)>();
-
-        public Dictionary<string, string> testDict = new Dictionary<string, string>();
-
-
         public FileParser()
         {
             InitializeComponent();
@@ -139,40 +130,6 @@ namespace ParserMiamidade
                     // Join each string in the inner list with commas and write to file
                     writer.WriteLine(string.Join(",", line));
                 }
-            }
-        }
-
-        private int WriteOutputFile(string outputFolder, string filename, List<List<string>> lines, int currentLineIndex)
-        {
-            var outputPath = Path.Combine(outputFolder, filename);
-            using (StreamWriter writer = new StreamWriter(outputPath))
-            {
-                writer.WriteLine(Headers);
-                List<string> line;
-                int rowCount = 1;
-
-                while (currentLineIndex < lines.Count())
-                {
-                    line = lines[currentLineIndex];
-                    var parcedLineList = Parser.ParseListofStrings(line);
-
-                    var parcedLineToCsv = System.String.Join(",", parcedLineList);
-                    writer.WriteLine(parcedLineToCsv);
-                    prgBarProgress.Invoke(new MethodInvoker(delegate
-                    {
-                        prgBarProgress.Value = currentLineIndex;
-                    }));
-
-                    if (rowCount == fileBreaker.Value)
-                    {
-                        return currentLineIndex + 1;
-                    }
-
-                    currentLineIndex++;
-                    rowCount++;
-                }
-
-                return -1;
             }
         }
 
